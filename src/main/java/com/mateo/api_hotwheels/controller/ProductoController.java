@@ -1,7 +1,7 @@
 package com.mateo.api_hotwheels.controller;
 
 import com.mateo.api_hotwheels.model.Producto;
-import com.mateo.api_hotwheels.repository.ProductoRepository;
+import com.mateo.api_hotwheels.service.ProductoService;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -11,30 +11,40 @@ import java.util.List;
 @CrossOrigin(origins = "*")
 public class ProductoController {
 
-    private final ProductoRepository productoRepository;
+    private final ProductoService productoService;
 
-    public ProductoController(ProductoRepository productoRepository) {
-        this.productoRepository = productoRepository;
+    public ProductoController(ProductoService productoService) {
+        this.productoService = productoService;
     }
 
     @GetMapping
     public List<Producto> listarProductos() {
-        return productoRepository.findAll();
+        return productoService.listarTodos();
     }
 
     @GetMapping("/{id}")
     public Producto obtenerProducto(@PathVariable Long id) {
-        return productoRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Producto no encontrado"));
+        return productoService.obtenerPorId(id);
     }
 
     @PostMapping
     public Producto crearProducto(@RequestBody Producto producto) {
-        return productoRepository.save(producto);
+        return productoService.crear(producto);
+    }
+
+    @PutMapping("/{id}")
+    public Producto actualizarProducto(@PathVariable Long id,
+                                       @RequestBody Producto producto) {
+        return productoService.actualizar(id, producto);
+    }
+
+    @DeleteMapping("/{id}")
+    public void eliminarProducto(@PathVariable Long id) {
+        productoService.eliminar(id);
     }
 
     @GetMapping("/categoria/{categoria}")
     public List<Producto> listarPorCategoria(@PathVariable String categoria) {
-        return productoRepository.findByCategoria(categoria);
+        return productoService.listarPorCategoria(categoria);
     }
 }

@@ -4,10 +4,9 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
-public class ApiHotwheelsApplication {
+public class ApiHothwheelsApplication {
 
-	public static void main(String[] args) {
-		SpringApplication.run(ApiHotwheelsApplication.class, args);
-	}
-
+    public static void main(String[] args) {
+        SpringApplication.run(ApiHothwheelsApplication.class, args);
+    }
 }
