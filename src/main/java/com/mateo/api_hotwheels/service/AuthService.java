@@ -6,25 +6,30 @@ import com.mateo.api_hotwheels.dto.LoginResponse;
 import com.mateo.api_hotwheels.dto.UsuarioDto;
 import com.mateo.api_hotwheels.model.Usuario;
 import com.mateo.api_hotwheels.repository.UsuarioRepository;
+import com.mateo.api_hotwheels.security.JwtService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-
-import java.util.Base64;
 
 @Service
 public class AuthService {
 
     private final UsuarioRepository usuarioRepository;
     private final PasswordEncoder passwordEncoder;
+    private final JwtService jwtService;
 
-    public AuthService(UsuarioRepository usuarioRepository,
-                       PasswordEncoder passwordEncoder) {
+    public AuthService(
+            UsuarioRepository usuarioRepository,
+            PasswordEncoder passwordEncoder,
+            JwtService jwtService
+    ) {
         this.usuarioRepository = usuarioRepository;
         this.passwordEncoder = passwordEncoder;
+        this.jwtService = jwtService;
     }
 
-    // REGISTRO
+    // ------------------ REGISTRO ------------------
     public UsuarioDto registrar(CrearUsuarioRequest request) {
+
         usuarioRepository.findByEmail(request.getEmail())
                 .ifPresent(u -> {
                     throw new RuntimeException("El correo ya está registrado");
@@ -40,8 +45,9 @@ public class AuthService {
         return mapToDto(guardado);
     }
 
-    // LOGIN
+    // ------------------ LOGIN ------------------
     public LoginResponse login(LoginRequest request) {
+
         Usuario usuario = usuarioRepository.findByEmail(request.getEmail())
                 .orElseThrow(() -> new RuntimeException("Credenciales inválidas"));
 
@@ -49,18 +55,17 @@ public class AuthService {
             throw new RuntimeException("Credenciales inválidas");
         }
 
-        String rawToken = usuario.getId() + ":" + usuario.getEmail() + ":" + System.currentTimeMillis();
-        String token = Base64.getEncoder().encodeToString(rawToken.getBytes());
-
-        UsuarioDto dto = mapToDto(usuario);
+        // GENERAR JWT REAL
+        String token = jwtService.generarToken(usuario.getEmail(), usuario.getRol());
 
         LoginResponse response = new LoginResponse();
         response.setToken(token);
-        response.setUsuario(dto);
+        response.setUsuario(mapToDto(usuario));
 
         return response;
     }
 
+    // ------------------ MAPEO ------------------
     private UsuarioDto mapToDto(Usuario usuario) {
         UsuarioDto dto = new UsuarioDto();
         dto.setId(usuario.getId());
