@@ -47,4 +47,14 @@ public class ProductoController {
     public List<Producto> listarPorCategoria(@PathVariable String categoria) {
         return productoService.listarPorCategoria(categoria);
     }
+
+    @PatchMapping("/{id}/descontar/{cantidad}")
+    public Producto descontarStock(@PathVariable Long id, @PathVariable int cantidad) {
+        return productoService.descontarStock(id, cantidad);
+    }
+
+    @PatchMapping("/{id}/sumar/{cantidad}")
+    public Producto sumarStock(@PathVariable Long id, @PathVariable int cantidad) {
+        return productoService.sumarStock(id, cantidad);
+    }
 }
